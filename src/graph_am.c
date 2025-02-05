@@ -76,3 +76,71 @@ void displayGraphAM(const GraphAM* graph) {
         printf("\n");
     }
 }
+
+void addVertexAM(GraphAM* graph) {
+    if (graph == NULL || graph->adjacencyMatrix == NULL) {
+        fprintf(stderr, "Err in addVertexAM: invalid graph AM provided\n");
+        return;
+    }
+
+    const int newSize = graph->size + 1;
+    int* newAdjMatrix = (int*) malloc(newSize * newSize * sizeof(int));
+    if (newAdjMatrix == NULL) {
+        fprintf(stderr, "Err in addVertexAM: memory allocation error\n");
+        return;
+    }
+
+    for (int i = 0; i < graph->size; i++) {
+        for (int j = 0; j < graph->size; j++) {
+            newAdjMatrix[i * newSize + j] = graph->adjacencyMatrix[i * graph->size + j];
+        }
+        newAdjMatrix[i * newSize + graph->size] = 0;  // New column
+    }
+
+    for (int j = 0; j < newSize; j++) {
+        newAdjMatrix[graph->size * newSize + j] = 0;
+    }
+
+    free(graph->adjacencyMatrix);
+    graph->adjacencyMatrix = newAdjMatrix;
+    graph->size = newSize;
+}
+
+void removeVertexAM(GraphAM* graph, const int id) {
+    if (graph == NULL || graph->adjacencyMatrix == NULL) {
+        fprintf(stderr, "Err in removeVertexAM: invalid graph AM provided\n");
+        return;
+    }
+    if (id < 0 || id >= graph->size) {
+        fprintf(stderr, "Err in removeVertexAM: invalid vertex ID\n");
+        return;
+    }
+
+    const int newSize = graph->size - 1;
+    if (newSize == 0) {
+        free(graph->adjacencyMatrix);
+        graph->adjacencyMatrix = NULL;
+        graph->size = 0;
+        return;
+    }
+
+    int* newAdjMatrix = (int*) malloc(newSize * newSize * sizeof(int));
+    if (newAdjMatrix == NULL) {
+        fprintf(stderr, "Err in removeVertexAM: memory allocation error\n");
+        return;
+    }
+
+    for (int i = 0, new_i = 0; i < graph->size; i++) {
+        if (i == id) continue;
+        for (int j = 0, new_j = 0; j < graph->size; j++) {
+            if (j == id) continue;
+            newAdjMatrix[new_i * newSize + new_j] = graph->adjacencyMatrix[i * graph->size + j];
+            new_j++;
+        }
+        new_i++;
+    }
+
+    free(graph->adjacencyMatrix);
+    graph->adjacencyMatrix = newAdjMatrix;
+    graph->size = newSize;
+}

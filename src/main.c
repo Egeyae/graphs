@@ -14,12 +14,15 @@ int main(void)
             addEdgeAM(g, i, (i+rand()%SIZE)%SIZE);
         }
     }
-    displayGraphAM(g);
-    printf("\n");
-    GraphLinkedList* ll = AMtoLL(g);
-    GraphAM* am = LLtoAM(ll);
-    displayGraphAM(am);
-    putchar('\n');
-    displayGraphLL(ll);
+    for (int j = 0; j <= 3; j++) {
+        displayGraphAM(g);
+        addVertexAM(g);
+        putchar('\n');
+    }
+    for (int j = 0; j <= 3; j++) {
+        displayGraphAM(g);
+        removeVertexAM(g, SIZE-j-1);
+        putchar('\n');
+    }
     return 0;
 }
