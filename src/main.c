@@ -3,7 +3,7 @@
 
 #include "../include/graph.h"
 
-#define SIZE 12
+#define SIZE 2
 
 int main(void)
 {
@@ -14,15 +14,20 @@ int main(void)
             addEdgeAM(g, i, (i+rand()%SIZE)%SIZE);
         }
     }
-    for (int j = 0; j <= 3; j++) {
-        displayGraphAM(g);
-        addVertexAM(g);
+    GraphLinkedList* ll = AMtoLL(g);
+
+    for (int j = 0; j <= 0; j++) {
+        displayGraphLL(ll);
+        addVertexLL(ll);
         putchar('\n');
     }
-    for (int j = 0; j <= 3; j++) {
-        displayGraphAM(g);
-        removeVertexAM(g, SIZE-j-1);
+    addEdgeLL(ll, 2, 1);
+    addEdgeLL(ll, 1, 2);
+    for (int j = 0; j <= 0; j++) {
+        displayGraphLL(ll);
+        removeVertexLL(ll, SIZE-j-1);
         putchar('\n');
     }
+    displayGraphLL(ll);
     return 0;
 }
