@@ -14,7 +14,6 @@ struct Vertex {
 typedef struct GraphLinkedList {
     int size;
     struct Vertex** childrenList;
-    struct Vertex** parentList;
 } GraphLinkedList;
 
 // AM Related funcs
@@ -25,6 +24,10 @@ void removeEdgeAM(const GraphAM* graph, int parent, int child);
 void displayGraphAM(const GraphAM* graph);
 void addVertexAM(GraphAM* graph); // add a new column+row at the end
 void removeVertexAM(GraphAM* graph, const int id);
+int* getChildrenAM(const GraphAM* graph, const int id);
+int isConnectedAM(const GraphAM* graph, const int parent, const int child);
+int inDegreeAM(const GraphAM* graph, const int id);
+int outDegreeAM(const GraphAM* graph, const int id);
 
 // Conversion funcs
 GraphLinkedList* AMtoLL(const GraphAM* graph);
@@ -38,6 +41,10 @@ void removeEdgeLL(GraphLinkedList* graph, int parent, int child);
 void displayGraphLL(const GraphLinkedList* graph);
 void addVertexLL(GraphLinkedList* graph); // adds a new vertex at the end
 void removeVertexLL(GraphLinkedList* graph, const int id);
+int* getChildrenLL(const GraphLinkedList* graph, const int id);
+int isConnectedLL(const GraphLinkedList* graph, const int parent, const int child);
+int inDegreeLL(const GraphLinkedList* graph, const int id);
+int outDegreeLL(const GraphLinkedList* graph, const int id);
 
 // General funcs
 int get_str_size(int size);

@@ -3,7 +3,7 @@
 
 #include "../include/graph.h"
 
-GraphLinkedList* emptyGraphLL(int size) {
+GraphLinkedList* emptyGraphLL(const int size) {
     GraphLinkedList* graph = (GraphLinkedList*) malloc(sizeof(GraphLinkedList));
     if (graph == NULL) {
         fprintf(stderr, "Err in emptyGraphLL: failed to allocate memory\n");
@@ -12,8 +12,7 @@ GraphLinkedList* emptyGraphLL(int size) {
     graph->size = size;
 
     graph->childrenList = (struct Vertex**) malloc(sizeof(struct Vertex*) * size);
-    graph->parentList = (struct Vertex**) malloc(sizeof(struct Vertex*) * size);
-    if (graph->childrenList == NULL || graph->parentList == NULL) {
+    if (graph->childrenList == NULL) {
         fprintf(stderr, "Err in emptyGraphLL: failed to allocate memory\n");
         free(graph);
         return NULL;
@@ -21,7 +20,6 @@ GraphLinkedList* emptyGraphLL(int size) {
 
     for (int i = 0; i < size; i++) {
         graph->childrenList[i] = NULL;
-        graph->parentList[i] = NULL;
     }
 
     return graph;
@@ -37,28 +35,20 @@ void freeGraphLL(GraphLinkedList* graph) {
             curr = curr->next;
             free(temp);
         }
-
-        curr = graph->parentList[i];
-        while (curr) {
-            struct Vertex* temp = curr;
-            curr = curr->next;
-            free(temp);
-        }
     }
 
     free(graph->childrenList);
-    free(graph->parentList);
     free(graph);
 }
 
-void appendVertexToLL(struct Vertex** start, int id) {
+void appendVertexToLL(struct Vertex** start, const int id) {
     struct Vertex* newVertex = (struct Vertex*) malloc(sizeof(struct Vertex));
     newVertex->id = id;
     newVertex->next = *start;
     *start = newVertex;
 }
 
-struct Vertex* delVertexFromLL(struct Vertex* start, int id) {
+struct Vertex* delVertexFromLL(struct Vertex* start, const int id) {
     struct Vertex* current = start;
     struct Vertex* previous = NULL;
 
@@ -78,8 +68,8 @@ struct Vertex* delVertexFromLL(struct Vertex* start, int id) {
     return start;
 }
 
-void addEdgeLL(GraphLinkedList* graph, int parent, int child) {
-    if (!graph || !graph->childrenList || !graph->parentList) {
+void addEdgeLL(GraphLinkedList* graph, const int parent, const int child) {
+    if (!graph || !graph->childrenList) {
         fprintf(stderr, "Error in addEdgeLL: graph or graph pointer is null\n");
         return;
     }
@@ -87,7 +77,7 @@ void addEdgeLL(GraphLinkedList* graph, int parent, int child) {
 }
 
 void removeEdgeLL(GraphLinkedList* graph, int parent, int child) {
-    if (!graph || !graph->childrenList || !graph->parentList) {
+    if (!graph || !graph->childrenList) {
         fprintf(stderr, "Error in removeEdgeLL: graph or graph pointer is null\n");
         return;
     }
@@ -116,7 +106,7 @@ void displayGraphLL(const GraphLinkedList* graph) {
 }
 
 void addVertexLL(GraphLinkedList* graph) {
-    if (!graph || !graph->childrenList || !graph->parentList) {
+    if (!graph || !graph->childrenList) {
         fprintf(stderr, "Error in addVertexLL: invalid graph LL provided\n");
         return;
     }
@@ -125,26 +115,23 @@ void addVertexLL(GraphLinkedList* graph) {
 
     // Resize the adjacency lists
     struct Vertex** newChildrenList = (struct Vertex**) realloc(graph->childrenList, sizeof(struct Vertex*) * newSize);
-    struct Vertex** newParentList = (struct Vertex**) realloc(graph->parentList, sizeof(struct Vertex*) * newSize);
 
-    if (!newChildrenList || !newParentList) {
+    if (!newChildrenList) {
         fprintf(stderr, "Error in addVertexLL: memory allocation failed\n");
         return;
     }
 
     graph->childrenList = newChildrenList;
-    graph->parentList = newParentList;
 
     // Initialize new lists for the new vertex
     graph->childrenList[graph->size] = NULL;
-    graph->parentList[graph->size] = NULL;
 
     // Update size
     graph->size = newSize;
 }
 
 void removeVertexLL(GraphLinkedList* graph, const int id) {
-    if (!graph || !graph->childrenList || !graph->parentList) {
+    if (!graph || !graph->childrenList) {
         fprintf(stderr, "Error in removeVertexLL: invalid graph LL provided\n");
         return;
     }
@@ -162,28 +149,82 @@ void removeVertexLL(GraphLinkedList* graph, const int id) {
         free(temp);
     }
 
-    curr = graph->parentList[id];
-    while (curr) {
-        struct Vertex* temp = curr;
-        curr = curr->next;
-        free(temp);
-    }
-
     for (int i = id; i < graph->size - 1; i++) {
         graph->childrenList[i] = graph->childrenList[i + 1];
-        graph->parentList[i] = graph->parentList[i + 1];
     }
 
     struct Vertex** newChildrenList = (struct Vertex**) realloc(graph->childrenList, sizeof(struct Vertex*) * (graph->size - 1));
-    struct Vertex** newParentList = (struct Vertex**) realloc(graph->parentList, sizeof(struct Vertex*) * (graph->size - 1));
 
-    if (!newChildrenList || !newParentList) {
+    if (!newChildrenList) {
         fprintf(stderr, "Error in removeVertexLL: memory allocation failed\n");
         return;
     }
 
     graph->childrenList = newChildrenList;
-    graph->parentList = newParentList;
 
     graph->size--;
+}
+
+int* getChildrenLL(const GraphLinkedList* graph, const int id) {
+    if (!graph || !graph->childrenList) {
+        fprintf(stderr, "Error in getChildrenLL: invalid graph LL provided\n");
+        return NULL;
+    }
+    if (id < 0 || id >= graph->size) {
+        fprintf(stderr, "Error in getChildrenLL: invalid vertex ID\n");
+        return NULL;
+    }
+    int* children = (int*) malloc(sizeof(int) * graph->size);
+    if (!children) {
+        fprintf(stderr, "Error in getChildrenLL: memory allocation failed\n");
+        return NULL;
+    }
+    struct Vertex* curr = graph->childrenList[id];
+    int counter = 0;
+    while (curr != NULL) {
+        children[counter] = curr->id;
+        curr = curr->next;
+        counter++;
+    }
+    return children;
+}
+
+int isConnectedLL(const GraphLinkedList* graph, const int parent, const int child) {
+    if (!graph || !graph->childrenList) {
+        fprintf(stderr, "Error in isConnectedLL: invalid graph LL provided\n");
+        return 0;
+    }
+    if (parent < 0 || parent >= graph->size || child < 0 || child >= graph->size) {
+        fprintf(stderr, "Error in isConnectedLL: invalid parent or child index\n");
+        return 0;
+    }
+    struct Vertex* curr = graph->childrenList[parent];
+    while (curr != NULL) {
+        if (curr->id == child) {
+            return 1;
+        }
+        curr = curr->next;
+    }
+    return 0;
+}
+
+int inDegreeLL(const GraphLinkedList* graph, const int id) {
+    // no need for graph check nor id check, if any problem, isConnectedAM returns 0
+    int count = 0;
+    for (int i = 0; i < graph->size; i++) {
+        if (isConnectedLL(graph, i, id) == 1) {
+            count++;
+        }
+    }
+    return count;
+}
+int outDegreeLL(const GraphLinkedList* graph, const int id) {
+    // no need for graph check nor id check, if any problem, isConnectedAM returns 0
+    int count = 0;
+    for (int i = 0; i < graph->size; i++) {
+        if (isConnectedLL(graph, id, i) == 1) {
+            count++;
+        }
+    }
+    return count;
 }

@@ -144,3 +144,56 @@ void removeVertexAM(GraphAM* graph, const int id) {
     graph->adjacencyMatrix = newAdjMatrix;
     graph->size = newSize;
 }
+
+int* getChildrenAM(const GraphAM* graph, const int id) {
+    if (graph == NULL || graph->adjacencyMatrix == NULL) {
+        fprintf(stderr, "Err in getChildrenAM: invalid graph AM provided\n");
+        return NULL;
+    }
+    if (id < 0 || id >= graph->size) {
+        fprintf(stderr, "Err in getChildrenAM: invalid vertex ID\n");
+        return NULL;
+    }
+    int* children = (int*) malloc(graph->size * sizeof(int));
+    if (children == NULL) {
+        fprintf(stderr, "Err in getChildrenAM: memory allocation error\n");
+        return NULL;
+    }
+    for (int i = 0; i < graph->size; i++) {
+        children[i] = graph->adjacencyMatrix[id * graph->size + i];
+    }
+    return children;
+}
+
+int isConnectedAM(const GraphAM* graph, const int parent, const int child) {
+    if (graph == NULL || graph->adjacencyMatrix == NULL) {
+        fprintf(stderr, "Err in isConnectedAM: invalid graph AM provided\n");
+        return 0;
+    }
+    if (child < 0 || child >= graph->size || parent < 0 || parent >= graph->size) {
+        fprintf(stderr, "Err in isConnectedAM: invalid vertex ID\n");
+        return 0;
+    }
+    return graph->adjacencyMatrix[parent*graph->size + child];
+}
+
+int inDegreeAM(const GraphAM* graph, const int id) {
+    // no need for graph check nor id check, if any problem, isConnectedAM returns 0
+    int count = 0;
+    for (int i = 0; i < graph->size; i++) {
+        if (isConnectedAM(graph, i, id) == 1) {
+            count++;
+        }
+    }
+    return count;
+}
+int outDegreeAM(const GraphAM* graph, const int id) {
+    // no need for graph check nor id check, if any problem, isConnectedAM returns 0
+    int count = 0;
+    for (int i = 0; i < graph->size; i++) {
+        if (isConnectedAM(graph, id, i) == 1) {
+            count++;
+        }
+    }
+    return count;
+}
