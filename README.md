@@ -21,3 +21,6 @@ include_directories(/usr/local/include)
 target_link_libraries(YOUR_PROJECT PRIVATE ${GRAPHS_LIB})
 # Your stuff...
 ```
+
+
+For further documentation, please check github project wiki
